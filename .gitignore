@@ -1,0 +1,9 @@
+chromadb/
+chromadb2/
+compiled_models/
+documents/
+dspy/
+local_cache/
+__pycache__
+chroma.log
+.DS_Store
