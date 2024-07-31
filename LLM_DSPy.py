@@ -65,31 +65,36 @@ def load_vector_db(persist_directory="chromadb2"):
     
     return retriever_model
 
-def load_llm_model(use_model='openai'):
+def load_llm_model(use_model='gpt-3.5'):
     if use_model == 'cohere':
         llm_model = dspy.Cohere(model='command-xlarge-nightly', api_key=os.getenv("COHERE_API_KEY"))
     elif use_model == 'phi':
         llm_model = dspy.OllamaLocal(model='phi')
-    elif use_model == 'openai':
+    elif use_model == 'gpt-3.5':
         llm_model =  dspy.OpenAI(model='gpt-3.5-turbo-1106', api_key=os.getenv("OPENAI_API_KEY"))
     else: # use phi local model
         llm_model = dspy.OllamaLocal(model='llama3')
     
     return llm_model
 
-dspy.settings.configure(lm=load_llm_model(), rm=load_vector_db()) # configure dspy
+use_model='gpt-3.5'
 
+dspy.settings.configure(lm=load_llm_model(use_model=use_model), rm=load_vector_db()) # configure dspy
 
 if 'session_id' not in st.session_state:
     st.session_state['session_id'] = str(uuid.uuid4())
-
-if "chat_history" not in st.session_state:
-    st.session_state["chat_history"] = []
 
 chatbot = RAG_chatbot()
 chatbot.load("compiled_models/chatbot_RAG.json")
 
 st.title('jetBlue Assistant')
+st.sidebar.title("Settings")
+st.sidebar.write(f"LLM Model: {use_model}")
+st.sidebar.markdown("Find code on [Github repo](https://github.com/greysou1/DSPy_RAG_chatBot.git)", unsafe_allow_html=True)
+
+if "chat_history" not in st.session_state:
+    st.session_state["chat_history"] = []
+    st.chat_message("ai").write("Hello! I'm your jetBlue assistant. You can ask me general questions about jetBlue guidelines.")
 
 for msg in st.session_state["chat_history"]:
     st.chat_message(msg[0]).write(msg[1])
